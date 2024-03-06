@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Testing Project</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Placeholder Posts</title>
+  <style>
+    #posts > div, #comments > div {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div id="posts"></div>
-    <script src="app.js"></script>
+  <h1>Post</h1>
+  <div id="posts"></div>
+  <h1>Comments</h1>
+  <div id="comments"></div>
+  <script src="app.js"></script>
 </body>
 </html>
