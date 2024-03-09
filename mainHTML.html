@@ -1,22 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JSON Placeholder Posts</title>
-  <style>
-    #posts > div, #comments > div {
-      border: 1px solid #ddd;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSONPlaceholder App</title>
+    <style>
+        body {
+            background-color: #15202b;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4 {
+            color: #ffffff;
+        }
+
+        .post {
+            background-color: #192734;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .post h2 {
+            margin-top: 0;
+            color: #1da1f2;
+        }
+
+        .comment {
+            margin-left: 20px;
+            padding: 10px;
+            border-left: 2px solid #1da1f2;
+            background-color: #253341;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #1da1f2;
+            background-color: #253341;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1da1f2;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0d91e5;
+        }
+
+        #navButtons {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #navButtons button {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Post</h1>
-  <div id="posts"></div>
-  <h1>Comments</h1>
-  <div id="comments"></div>
-  <script src="app.js"></script>
+    <h1>JSONPlaceholder App</h1>
+
+    <!-- Przyciski nawigacyjne -->
+    <div id="navButtons">
+        <button id="postsButton">Posts</button>
+        <button id="albumsButton">Albums</button>
+    </div>
+
+    <div id="postsContainer"></div>
+
+    <script src="app.js"></script>
 </body>
 </html>
