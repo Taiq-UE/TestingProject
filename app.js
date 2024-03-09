@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const postsButton = document.getElementById('postsButton');
   const albumsButton = document.getElementById('albumsButton');
 
-  // Funkcja do pobierania postów z API
-  function fetchPosts() {
+  // Funkcja do pobierania postów z API z ograniczeniem liczby postów
+  function fetchPosts(limit = 10) {
       fetch('https://jsonplaceholder.typicode.com/users')
           .then(response => response.json())
           .then(users => {
-              fetch('https://jsonplaceholder.typicode.com/posts')
+              fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}`)
                   .then(response => response.json())
                   .then(posts => {
                       postsContainer.innerHTML = ''; // Czyszczenie kontenera przed dodaniem nowych danych
@@ -21,55 +21,41 @@ document.addEventListener('DOMContentLoaded', () => {
                               <h2>User: ${user ? user.name : 'Unknown'}</h2>
                               <h3>${post.title}</h3>
                               <p>${post.body}</p>
-                              <div class="commentsContainer">
-                                  <h4>Comments:</h4>
-                                  <div id="comments${post.id}" class="comments"></div> <!-- Dodane id oraz klasa -->
-                                  <form id="commentForm${post.id}" class="commentForm"> <!-- Dodany formularz z id -->
-                                      <input type="text" id="commentName${post.id}" placeholder="Name">
-                                      <input type="text" id="commentEmail${post.id}" placeholder="Email">
-                                      <input type="text" id="commentBody${post.id}" placeholder="Comment">
-                                      <button type="submit">Add Comment</button> <!-- Zmieniony button na submit -->
-                                  </form>
-                              </div>
                           `;
                           postsContainer.appendChild(postElement);
 
-                          // Dodanie obsługi formularza komentarza dla danego postu
-                          const commentForm = document.getElementById(`commentForm${post.id}`);
-                          commentForm.addEventListener('submit', event => {
-                              event.preventDefault(); // Zapobieganie domyślnej akcji formularza
-                              const nameInput = document.getElementById(`commentName${post.id}`).value;
-                              const emailInput = document.getElementById(`commentEmail${post.id}`).value;
-                              const bodyInput = document.getElementById(`commentBody${post.id}`).value;
-                              const commentData = {
-                                  name: nameInput,
-                                  email: emailInput,
-                                  body: bodyInput
-                              };
-                              addComment(post.id, commentData); // Dodawanie komentarza
-                          });
-
-                          // Pobranie i wyświetlenie komentarzy dla danego postu
-                          fetchComments(post.id);
+                          // Pobieranie i wyświetlanie komentarzy dla posta
+                          fetch(`https://jsonplaceholder.typicode.com/posts/${post.id}/comments`)
+                              .then(response => response.json())
+                              .then(comments => {
+                                  const commentsContainer = document.createElement('div');
+                                  commentsContainer.classList.add('commentsContainer');
+                                  commentsContainer.innerHTML = '<h4>Comments:</h4>';
+                                  comments.forEach(comment => {
+                                      const commentElement = document.createElement('div');
+                                      commentElement.classList.add('comment');
+                                      commentElement.innerHTML = `
+                                          <h5>${comment.name} (${comment.email})</h5>
+                                          <p>${comment.body}</p>
+                                      `;
+                                      commentsContainer.appendChild(commentElement);
+                                  });
+                                  postElement.appendChild(commentsContainer);
+                              });
                       });
-                  })
-                  .catch(error => {
-                      console.error('Error fetching posts:', error);
                   });
           })
           .catch(error => {
-              console.error('Error fetching users:', error);
+              console.error('Error fetching data:', error);
           });
   }
 
-
-
   // Funkcja do pobierania albumów z API
-  function fetchAlbums() {
+  function fetchAlbums(limit = 10) {
     fetch('https://jsonplaceholder.typicode.com/users')
         .then(response => response.json())
         .then(users => {
-            fetch('https://jsonplaceholder.typicode.com/albums')
+            fetch(`https://jsonplaceholder.typicode.com/albums?_limit=${limit}`)
                 .then(response => response.json())
                 .then(albums => {
                     fetch('https://jsonplaceholder.typicode.com/photos')
@@ -110,57 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 }
 
-function fetchComments(postId) {
-  fetch(`https://jsonplaceholder.typicode.com/posts/${postId}/comments`)
-      .then(response => response.json())
-      .then(comments => {
-          const postElement = document.getElementById(`post${postId}`); // Znajdowanie elementu postu
-          const commentsContainer = postElement.querySelector('.commentsContainer'); // Znajdowanie kontenera komentarzy w danym poście
-          commentsContainer.innerHTML = ''; // Czyszczenie kontenera przed dodaniem nowych danych
-          comments.forEach(comment => {
-              const commentElement = document.createElement('div');
-              commentElement.classList.add('comment');
-              commentElement.innerHTML = `
-                  <strong>${comment.name}</strong> (${comment.email})<br>
-                  ${comment.body}
-              `;
-              commentsContainer.appendChild(commentElement);
-          });
-      })
-      .catch(error => {
-          console.error(`Error fetching comments for post ${postId}:`, error);
-      });
-}
-
-// Funkcja do dodawania komentarza
-function addComment(postId, commentData) {
-    fetch(`https://jsonplaceholder.typicode.com/posts/${postId}/comments`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(commentData)
-    })
-    .then(response => response.json())
-    .then(comment => {
-        const postElement = document.querySelector(`.post[data-post-id="${postId}"]`);
-        const commentsContainer = postElement.querySelector('.comments');
-        const commentElement = document.createElement('div');
-        commentElement.className = 'comment';
-        commentElement.innerHTML = `
-            <strong>${comment.name}</strong> (${comment.email})<br>
-            ${comment.body}
-        `;
-        commentsContainer.appendChild(commentElement);
-    })
-    .catch(error => {
-        console.error('Error adding comment:', error);
-    });
-}
-
-
-
   // Nasłuchuj przycisków nawigacyjnych
-  postsButton.addEventListener('click', fetchPosts);
-  albumsButton.addEventListener('click', fetchAlbums);
+  postsButton.addEventListener('click', () => fetchPosts());
+  albumsButton.addEventListener('click', () => fetchAlbums());
 });
