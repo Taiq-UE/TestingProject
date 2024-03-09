@@ -84,6 +84,9 @@
 
     <script>
         function fetchPosts() {
+    fetch('https://jsonplaceholder.typicode.com/users')
+        .then(response => response.json())
+        .then(users => {
             fetch('https://jsonplaceholder.typicode.com/posts')
                 .then(response => response.json())
                 .then(posts => {
@@ -92,8 +95,9 @@
                     posts.forEach(post => {
                         const postElement = document.createElement('div');
                         postElement.classList.add('post');
+                        const user = users.find(user => user.id === post.userId);
                         postElement.innerHTML = `
-                            <h2>User ID: ${post.userId}</h2>
+                            <h2>User: ${user ? user.name : 'Unknown'}</h2>
                             <h3>${post.title}</h3>
                             <p>${post.body}</p>
                             <div class="commentsContainer">
@@ -108,46 +112,57 @@
                             </div>
                         `;
                         postsContainer.appendChild(postElement);
-                        fetchComments(post.id);
                     });
                 })
                 .catch(error => {
                     console.error('Error fetching posts:', error);
                 });
-        }
+        })
+        .catch(error => {
+            console.error('Error fetching users:', error);
+        });
+}
 
         function fetchAlbums() {
-    fetch('https://jsonplaceholder.typicode.com/albums')
+    fetch('https://jsonplaceholder.typicode.com/users')
         .then(response => response.json())
-        .then(albums => {
-            fetch('https://jsonplaceholder.typicode.com/photos')
+        .then(users => {
+            fetch('https://jsonplaceholder.typicode.com/albums')
                 .then(response => response.json())
-                .then(photos => {
-                    const postsContainer = document.getElementById('postsContainer');
-                    postsContainer.innerHTML = ''; // Clearing the container before adding new data
-                    albums.forEach(album => {
-                        const albumElement = document.createElement('div');
-                        albumElement.classList.add('album');
-                        albumElement.innerHTML = `
-                            <h2>${album.title}</h2>
-                            <p>User ID: ${album.userId}</p>
-                            <p>Album ID: ${album.id}</p>
-                        `;
-                        const albumPhotos = photos.filter(photo => photo.albumId === album.id);
-                        albumPhotos.forEach(photo => {
-                            const photoElement = document.createElement('img');
-                            photoElement.src = photo.thumbnailUrl;
-                            albumElement.appendChild(photoElement);
+                .then(albums => {
+                    fetch('https://jsonplaceholder.typicode.com/photos')
+                        .then(response => response.json())
+                        .then(photos => {
+                            const postsContainer = document.getElementById('postsContainer');
+                            postsContainer.innerHTML = ''; // Clearing the container before adding new data
+                            albums.forEach(album => {
+                                const albumElement = document.createElement('div');
+                                albumElement.classList.add('album');
+                                const user = users.find(user => user.id === album.userId);
+                                albumElement.innerHTML = `
+                                    <h2>${album.title}</h2>
+                                    <p>User: ${user ? user.name : 'Unknown'}</p>
+                                    <p>Album ID: ${album.id}</p>
+                                `;
+                                const albumPhotos = photos.filter(photo => photo.albumId === album.id);
+                                albumPhotos.forEach(photo => {
+                                    const photoElement = document.createElement('img');
+                                    photoElement.src = photo.thumbnailUrl;
+                                    albumElement.appendChild(photoElement);
+                                });
+                                postsContainer.appendChild(albumElement);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching photos:', error);
                         });
-                        postsContainer.appendChild(albumElement);
-                    });
                 })
                 .catch(error => {
-                    console.error('Error fetching photos:', error);
+                    console.error('Error fetching albums:', error);
                 });
         })
         .catch(error => {
-            console.error('Error fetching albums:', error);
+            console.error('Error fetching users:', error);
         });
 }
 
