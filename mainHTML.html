@@ -117,11 +117,14 @@
         }
 
         function fetchAlbums() {
-            fetch('https://jsonplaceholder.typicode.com/albums')
+    fetch('https://jsonplaceholder.typicode.com/albums')
+        .then(response => response.json())
+        .then(albums => {
+            fetch('https://jsonplaceholder.typicode.com/photos')
                 .then(response => response.json())
-                .then(albums => {
+                .then(photos => {
                     const postsContainer = document.getElementById('postsContainer');
-                    postsContainer.innerHTML = ''; // Czyszczenie kontenera przed dodaniem nowych danych
+                    postsContainer.innerHTML = ''; // Clearing the container before adding new data
                     albums.forEach(album => {
                         const albumElement = document.createElement('div');
                         albumElement.classList.add('album');
@@ -130,13 +133,23 @@
                             <p>User ID: ${album.userId}</p>
                             <p>Album ID: ${album.id}</p>
                         `;
+                        const albumPhotos = photos.filter(photo => photo.albumId === album.id);
+                        albumPhotos.forEach(photo => {
+                            const photoElement = document.createElement('img');
+                            photoElement.src = photo.thumbnailUrl;
+                            albumElement.appendChild(photoElement);
+                        });
                         postsContainer.appendChild(albumElement);
                     });
                 })
                 .catch(error => {
-                    console.error('Error fetching albums:', error);
+                    console.error('Error fetching photos:', error);
                 });
-        }
+        })
+        .catch(error => {
+            console.error('Error fetching albums:', error);
+        });
+}
 
         // Funkcja do pobierania komentarzy
         function fetchComments(postId) {
