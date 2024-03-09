@@ -3,10 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Testing Project</title>
+    <title>JSONPlaceholder App</title>
+    <style>
+        body {
+            background-color: #15202b;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4 {
+            color: #ffffff;
+        }
+
+        .post {
+            background-color: #192734;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .post h2 {
+            margin-top: 0;
+            color: #1da1f2;
+        }
+
+        .comment {
+            margin-left: 20px;
+            padding: 10px;
+            border-left: 2px solid #1da1f2;
+            background-color: #253341;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #1da1f2;
+            background-color: #253341;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1da1f2;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0d91e5;
+        }
+    </style>
 </head>
 <body>
-    <div id="posts"></div>
-    <script src="app.js"></script>
+    <h1>JSONPlaceholder App</h1>
+
+    <div id="postsContainer"></div>
+
+    <script>
+         function fetchPosts() {
+            fetch('https://jsonplaceholder.typicode.com/posts')
+                .then(response => response.json())
+                .then(posts => {
+                    const postsContainer = document.getElementById('postsContainer');
+                    posts.forEach(post => {
+                        const postElement = document.createElement('div');
+                        postElement.classList.add('post');
+                        postElement.innerHTML = `
+                            <h2>User ID: ${post.userId}</h2>
+                            <h3>${post.title}</h3>
+                            <p>${post.body}</p>
+                            <div class="commentsContainer">
+                                <h4>Comments:</h4>
+                                <div id="comments${post.id}"></div>
+                                <div class="commentForm">
+                                    <input type="text" id="commentName${post.id}" placeholder="Name">
+                                    <input type="text" id="commentEmail${post.id}" placeholder="Email">
+                                    <input type="text" id="commentBody${post.id}" placeholder="Comment">
+                                    <button onclick="addComment(${post.id})">Add Comment</button>
+                                </div>
+                            </div>
+                        `;
+                        postsContainer.appendChild(postElement);
+                        fetchComments(post.id);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching posts:', error);
+                });
+        }
+
+        function fetchComments(postId) {
+            fetch(`https://jsonplaceholder.typicode.com/posts/${postId}/comments`)
+                .then(response => response.json())
+                .then(comments => {
+                    const commentsContainer = document.getElementById(`comments${postId}`);
+                    comments.forEach(comment => {
+                        const commentElement = document.createElement('div');
+                        commentElement.classList.add('comment');
+                        commentElement.innerHTML = `
+                            <strong>${comment.name}</strong> (${comment.email})<br>
+                            ${comment.body}
+                        `;
+                        commentsContainer.appendChild(commentElement);
+                    });
+                })
+                .catch(error => {
+                    console.error(`Error fetching comments for post ${postId}:`, error);
+                });
+        }
+
+        function addComment(postId) {
+            const nameInput = document.getElementById(`commentName${postId}`);
+            const emailInput = document.getElementById(`commentEmail${postId}`);
+            const bodyInput = document.getElementById(`commentBody${postId}`);
+
+            const newComment = {
+                postId: postId,
+                name: nameInput.value,
+                email: emailInput.value,
+                body: bodyInput.value
+            };
+
+            // Here you can add logic to send the new comment to the server, for simplicity, we're just logging it
+            console.log('New comment:', newComment);
+
+            // Clear input fields after adding comment
+            nameInput.value = '';
+            emailInput.value = '';
+            bodyInput.value = '';
+
+            // Fetch comments again to display the new comment
+            fetchComments(postId);
+        }
+
+        // Fetch posts when the page loads
+        fetchPosts();
+    </script>
 </body>
 </html>
