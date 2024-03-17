@@ -110,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
           });
   }
 
-  // Nasłuchuj przycisków nawigacyjnych
   postsButton.addEventListener('click', () => fetchPosts());
   albumsButton.addEventListener('click', () => fetchAlbums());
 
