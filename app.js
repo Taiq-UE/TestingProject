@@ -6,24 +6,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const minCharCountInput = document.getElementById('minCharCount');
   const maxCharCountInput = document.getElementById('maxCharCount');
 
-  // Funkcja do pobierania postów z API z ograniczeniem liczby postów
-  function fetchPosts(limit = 10) {
-      fetch('https://jsonplaceholder.typicode.com/users')
-          .then(response => response.json())
-          .then(users => {
-              fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}`)
-                  .then(response => response.json())
-                  .then(posts => {
+  let minCharCount = 0;
+  let maxCharCount = Number.MAX_SAFE_INTEGER;
 
-                      const minCharCount = Number(minCharCountInput.value);
-                      const maxCharCount = Number(maxCharCountInput.value);
-                
-                      console.log(`Min Char Count: ${minCharCount}, Max Char Count: ${maxCharCount}`);
-                      
-                      posts = posts.filter(post => {
-                        const postLength = post.body.length;
-                        return postLength >= minCharCount && postLength <= maxCharCount;
-                      });
+  // Funkcja do pobierania postów z API z ograniczeniem liczby postów
+    function fetchPosts(minCharCount = 0, maxCharCount = Number.MAX_SAFE_INTEGER) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const limit = urlParams.has('limit') ? Number(urlParams.get('limit')) : 100;
+
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then(response => response.json())
+            .then(users => {
+                fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}`)
+                    .then(response => response.json())
+                    .then(posts => {
+
+                        // Sprawdź, czy pola wprowadzania danych są puste
+                        const minCharCountInputValue = minCharCountInput.value.trim();
+                        const maxCharCountInputValue = maxCharCountInput.value.trim();
+
+                        // Jeśli pole wprowadzania danych jest puste, użyj domyślnej wartości
+                        minCharCount = minCharCountInputValue !== '' ? Number(minCharCountInputValue) : minCharCount;
+                        maxCharCount = maxCharCountInputValue !== '' ? Number(maxCharCountInputValue) : maxCharCount;
+
+                        console.log(`Min Char Count: ${minCharCount}, Max Char Count: ${maxCharCount}`);
+
+                        posts = posts.filter(post => {
+                            const postLength = post.body.length;
+                            return postLength >= minCharCount && postLength <= maxCharCount;
+                        });
 
                       postsContainer.innerHTML = ''; // Czyszczenie kontenera przed dodaniem nowych danych
                       posts.forEach(post => {
@@ -110,6 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
           });
   }
 
+  fetchPosts();
+
   postsButton.addEventListener('click', () => fetchPosts());
   albumsButton.addEventListener('click', () => fetchAlbums());
 
@@ -126,4 +139,5 @@ document.addEventListener('DOMContentLoaded', () => {
           });
       }
   });
+
 });
