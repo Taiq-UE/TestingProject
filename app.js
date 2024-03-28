@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const limit = urlParams.has('limit') ? Number(urlParams.get('limit')) : 100;
 
-        fetch('https://jsonplaceholder.typicode.com/users')
+        fetch('http://127.0.0.1:8080/users')
             .then(response => response.json())
             .then(users => {
-                fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}`)
+                fetch(`http://127.0.0.1:8080/posts/${limit}`)
                     .then(response => response.json())
                     .then(posts => {
 
@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
                           postsContainer.appendChild(postElement);
 
                           // Pobieranie i wyświetlanie komentarzy dla posta
-                          fetch(`https://jsonplaceholder.typicode.com/posts/${post.id}/comments`)
+                          var postid = post.id;
+                          fetch(`http://127.0.0.1:8080/post/${post.id}/comments`)
                               .then(response => response.json())
                               .then(comments => {
                                   const commentsContainer = document.createElement('div');
@@ -76,14 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Funkcja do pobierania albumów z API z ograniczeniem liczby albumów
-  function fetchAlbums(limit = 10) {
-      fetch('https://jsonplaceholder.typicode.com/users')
+  function fetchAlbums() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const limit = urlParams.has('limit') ? Number(urlParams.get('limit')) : 10;
+      fetch('http://127.0.0.1:8080/users')
           .then(response => response.json())
           .then(users => {
-              fetch(`https://jsonplaceholder.typicode.com/albums?_limit=${limit}`)
+              fetch(`http://127.0.0.1:8080/albums/${limit}`)
                   .then(response => response.json())
                   .then(albums => {
-                      fetch('https://jsonplaceholder.typicode.com/photos')
+                      fetch('http://127.0.0.1:8080/photos')
                           .then(response => response.json())
                           .then(photos => {
                               const postsContainer = document.getElementById('postsContainer');
