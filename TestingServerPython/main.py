@@ -8,10 +8,9 @@ CORS(app)  # Dodajemy obsługę CORS
 @app.route('/posts/<int:limit>')
 def get_posts(limit):
     response = requests.get(f'https://jsonplaceholder.typicode.com/posts?_limit={limit}')
-    if response.status_code == 200:
-        return jsonify(response.json())
-    else:
-        return jsonify({'error': 'An error occurred while fetching posts'}), 500
+    if response.status_code != 200:
+        return {'error': 'An error occurred while fetching posts'}, 500
+    return response.json()
 
 @app.route('/albums/<int:limit>')
 def get_albums(limit):
