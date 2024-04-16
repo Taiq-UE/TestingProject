@@ -175,7 +175,7 @@ class TestMain(unittest.TestCase):
         response = get_post_comments(1)
 
         # Sprawdzamy, czy funkcja zwraca odpowiednią odpowiedź
-        self.assertEqual(response, ({'error': 'An error occurred while fetching photos'}, 500))
+        self.assertEqual(response, ({'error': 'An error occurred while fetching comments'}, 500))
 
 if __name__ == '__main__':
     unittest.main()
