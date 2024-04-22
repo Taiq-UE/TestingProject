@@ -33,7 +33,7 @@ def get_photos():
         return {'error': 'An error occurred while fetching photos'}, 500
     return response.json()
 
-@app.route('/post/<int:post_id>/comments')
+@app.route('/posts/<int:post_id>/comments')
 def get_post_comments(post_id):
     response = requests.get(f'https://jsonplaceholder.typicode.com/posts/{post_id}/comments')
     if response.status_code != 200:
