@@ -1,108 +1,115 @@
 import unittest
-from unittest.mock import patch
-import sys
-sys.path.append('E:/TestingProject/TestingProject/TestingServerPython')
-import main
-
-
-
+import pytest
+import requests
 
 
 class TestMainContract(unittest.TestCase):
 
-    @patch('main.requests.get')
-    def test_get_posts_contract(self, mock_get):
-        # Ustawiamy mocka dla funkcji requests.get
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = [
-            {
-                "userId": 1,
-                "id": 1,
-                "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-                "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
-            }
+    BASE_URL = "http://127.0.0.1:8080"
+
+    @pytest.mark.contract
+    def test_get_single_post_contract(self):
+        post_id = 1
+        expected_post_data = [{
+            "userId": 1,
+            "id": post_id,
+            "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+            "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+        }]
+
+        response = requests.get(f"{self.BASE_URL}/posts/{post_id}")
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue(response.headers["Content-Type"].startswith("application/json"))
+
+        post_data = response.json()
+        self.assertEqual(post_data, expected_post_data)
+
+    @pytest.mark.contract
+    def test_get_albums_contract(self):
+        album_id = 1
+        expected_album_data = [{
+            "userId": 1,
+            "id": album_id,
+            "title": "quidem molestiae enim"
+        }]
+
+        response = requests.get(f"{self.BASE_URL}/albums/{album_id}")
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue(response.headers["Content-Type"].startswith("application/json"))
+
+        album_data = response.json()
+        self.assertEqual(album_data, expected_album_data)
+
+    @pytest.mark.contract
+    def test_get_users_contract(self):
+        expected_user_data = [
+            {"id": 1, "name": "Leanne Graham"},
+            {"id": 2, "name": "Ervin Howell"},
+            {"id": 3, "name": "Clementine Bauch"},
+            {"id": 4, "name": "Patricia Lebsack"},
+            {"id": 5, "name": "Chelsey Dietrich"},
+            {"id": 6, "name": "Mrs. Dennis Schulist"},
+            {"id": 7, "name": "Kurtis Weissnat"},
+            {"id": 8, "name": "Nicholas Runolfsdottir V"},
+            {"id": 9, "name": "Glenna Reichert"},
+            {"id": 10, "name": "Clementina DuBuque"}
         ]
 
-        # Wywołujemy funkcję, którą testujemy
-        response = main.get_posts(1)
+        response = requests.get(f"{self.BASE_URL}/users")
 
-        # Sprawdzamy, czy funkcja zwraca oczekiwane dane
-        self.assertEqual(response, mock_get.return_value.json.return_value)
+        self.assertEqual(response.status_code, 200)
 
-    @patch('main.requests.get')
-    def test_get_albums_contract(self, mock_get):
-        # Ustawiamy mocka dla funkcji requests.get
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = [
-            {
-                "userId": 1,
-                "id": 1,
-                "title": "quidem molestiae enim"
-            }
-        ]
+        self.assertTrue(response.headers["Content-Type"].startswith("application/json"))
 
-        # Wywołujemy funkcję, którą testujemy
-        response = main.get_albums(1)
+        user_data = response.json()
+        user_data_simplified = [{"id": user["id"], "name": user["name"]} for user in user_data]
+        self.assertEqual(user_data_simplified, expected_user_data)
 
-        # Sprawdzamy, czy funkcja zwraca oczekiwane dane
-        self.assertEqual(response, mock_get.return_value.json.return_value)
+    @pytest.mark.contract
+    def test_get_photos_contract(self):
+        response = requests.get(f"{self.BASE_URL}/photos")
 
-    @patch('main.requests.get')
-    def test_get_users_contract(self, mock_get):
-        # Ustawiamy mocka dla funkcji requests.get
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = [
-            {
-                "id": 1,
-                "name": "Leanne Graham"
-            }
-        ]
+        self.assertEqual(response.status_code, 200)
 
-        # Wywołujemy funkcję, którą testujemy
-        response = main.get_users()
+        self.assertTrue(response.headers["Content-Type"].startswith("application/json"))
 
-        # Sprawdzamy, czy funkcja zwraca oczekiwane dane
-        self.assertEqual(response, mock_get.return_value.json.return_value)
+        photos_data = response.json()
 
-    @patch('main.requests.get')
-    def test_get_photos_contract(self, mock_get):
-        # Ustawiamy mocka dla funkcji requests.get
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = [
-            {
-                "albumId": 1,
-                "id": 1,
-                "title": "accusamus beatae ad facilis cum similique qui sunt",
-                "url": "https://via.placeholder.com/600/92c952",
-                "thumbnailUrl": "https://via.placeholder.com/150/92c952"
-            }
-        ]
+        self.assertIsInstance(photos_data, list)
 
-        # Wywołujemy funkcję, którą testujemy
-        response = main.get_photos()
+        for photo in photos_data:
+            self.assertIsInstance(photo, dict)
+            self.assertIn('albumId', photo)
+            self.assertIn('id', photo)
+            self.assertIn('title', photo)
+            self.assertIn('url', photo)
+            self.assertIn('thumbnailUrl', photo)
 
-        # Sprawdzamy, czy funkcja zwraca oczekiwane dane
-        self.assertEqual(response, mock_get.return_value.json.return_value)
+    @pytest.mark.contract
+    def test_get_post_comments_contract(self):
+        post_id = 1
 
-    @patch('main.requests.get')
-    def test_get_post_comments_contract(self, mock_get):
-        # Ustawiamy mocka dla funkcji requests.get
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = [
-            {
-                "postId": 1,
-                "id": 1,
-                "name": "id labore ex et quam laborum",
-                "email": "Eliseo@gardner.biz",
-                "body": "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium"
-            }
-        ]
+        response = requests.get(f"{self.BASE_URL}/posts/{post_id}/comments")
 
-        # Wywołujemy funkcję, którą testujemy
-        response = main.get_post_comments(1)
+        self.assertEqual(response.status_code, 200)
 
-        # Sprawdzamy, czy funkcja zwraca oczekiwane dane
-        self.assertEqual(response, mock_get.return_value.json.return_value)
+        self.assertTrue(response.headers["Content-Type"].startswith("application/json"))
+
+        comments_data = response.json()
+
+        self.assertIsInstance(comments_data, list)
+
+        for comment in comments_data:
+            self.assertIsInstance(comment, dict)
+            self.assertIn('postId', comment)
+            self.assertIn('id', comment)
+            self.assertIn('name', comment)
+            self.assertIn('email', comment)
+            self.assertIn('body', comment)
 
 if __name__ == '__main__':
     unittest.main()
